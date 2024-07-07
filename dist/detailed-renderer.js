@@ -252,6 +252,14 @@ var DetailedRenderer = /** @class */ (function (_super) {
                 });
             });
         }
+        if (this.options.indiDblCallback) {
+            enter.on('dblclick', function (event, data) {
+                return _this.options.indiDblCallback({
+                    id: data.indi.id,
+                    generation: data.generation,
+                });
+            });
+        }
         // Background.
         var background = enter
             .append('rect')

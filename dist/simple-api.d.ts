@@ -19,6 +19,7 @@ export interface SimpleChartOptions {
     indiUrl?: string;
     famUrl?: string;
     indiCallback?: (id: IndiInfo) => void;
+    indiDblCallback?: (id: IndiInfo) => void;
     famCallback?: (id: FamInfo) => void;
     svgSelector?: string;
     chartType: ChartType;

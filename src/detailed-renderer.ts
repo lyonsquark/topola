@@ -399,6 +399,14 @@ export class DetailedRenderer extends CompositeRenderer implements Renderer {
         })
       );
     }
+    if (this.options.indiDblCallback) {
+      enter.on('dblclick', (event, data) =>
+        this.options.indiDblCallback!({
+          id: data.indi.id,
+          generation: data.generation,
+        })
+      );
+    }
     // Background.
     const background = enter
       .append('rect')
