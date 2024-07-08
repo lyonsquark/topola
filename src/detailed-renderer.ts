@@ -392,6 +392,7 @@ export class DetailedRenderer extends CompositeRenderer implements Renderer {
       update = update.select('a');
     }
     if (this.options.indiCallback) {
+      console.log("Setting single click callback");
       enter.on('click', (event, data) =>
         this.options.indiCallback!({
           id: data.indi.id,
@@ -400,6 +401,7 @@ export class DetailedRenderer extends CompositeRenderer implements Renderer {
       );
     }
     if (this.options.indiDblCallback) {
+      console.log("Setting double click callback");
       enter.on('dblclick', (event, data) =>
         this.options.indiDblCallback!({
           id: data.indi.id,

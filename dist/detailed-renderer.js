@@ -245,6 +245,7 @@ var DetailedRenderer = /** @class */ (function (_super) {
             update = update.select('a');
         }
         if (this.options.indiCallback) {
+            console.log("Setting single click callback");
             enter.on('click', function (event, data) {
                 return _this.options.indiCallback({
                     id: data.indi.id,
@@ -253,6 +254,7 @@ var DetailedRenderer = /** @class */ (function (_super) {
             });
         }
         if (this.options.indiDblCallback) {
+            console.log("Setting double click callback");
             enter.on('dblclick', function (event, data) {
                 return _this.options.indiDblCallback({
                     id: data.indi.id,
