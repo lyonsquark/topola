@@ -392,7 +392,6 @@ export class DetailedRenderer extends CompositeRenderer implements Renderer {
       update = update.select('a');
     }
     if (this.options.indiCallback) {
-      console.log("Setting single click callback A");
       enter.on('click', (event, data) =>
         this.options.indiCallback!({
           id: data.indi.id,
@@ -401,13 +400,21 @@ export class DetailedRenderer extends CompositeRenderer implements Renderer {
       );
     }
     if (this.options.indiDblCallback) {
-      console.log("Setting double click callback A");
       enter.on('dblclick', (event, data) =>
         this.options.indiDblCallback!({
           id: data.indi.id,
           generation: data.generation,
         })
       );
+    }
+    if (this.options.indiRightCallback) {
+      enter.on('contextmenu', (event, data) => {
+        event.preventDefault();
+        this.options.indiRightCallback!({
+          id: data.indi.id,
+          generation: data.generation,
+        });
+      });
     }
     // Background.
     const background = enter

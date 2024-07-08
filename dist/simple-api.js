@@ -25,6 +25,7 @@ function createChartOptions(chartOptions, renderOptions, options) {
             famHrefFunc: famHrefFunc,
             indiCallback: chartOptions.indiCallback,
             indiDblCallback: chartOptions.indiDblCallback,
+            indiRightCallback: chartOptions.indiRightCallback,
             famCallback: chartOptions.famCallback,
             horizontal: chartOptions.horizontal,
             colors: chartOptions.colors,

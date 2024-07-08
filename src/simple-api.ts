@@ -43,6 +43,7 @@ export interface SimpleChartOptions {
   famUrl?: string;
   indiCallback?: (id: IndiInfo) => void;
   indiDblCallback?: (id: IndiInfo) => void;
+  indiRightCallback?: (id: IndiInfo) => void;
   famCallback?: (id: FamInfo) => void;
   // CSS selector of the SVG tag to draw in. If not provided, the chart will be
   // rendered in the first SVG tag.
@@ -84,6 +85,7 @@ function createChartOptions(
       famHrefFunc,
       indiCallback: chartOptions.indiCallback,
       indiDblCallback: chartOptions.indiDblCallback,
+      indiRightCallback: chartOptions.indiRightCallback,
       famCallback: chartOptions.famCallback,
       horizontal: chartOptions.horizontal,
       colors: chartOptions.colors,

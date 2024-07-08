@@ -112,6 +112,7 @@ export interface RendererOptions<IndiT extends Indi, FamT extends Fam> {
   famHrefFunc?: (id: string) => string;
   indiCallback?: (id: IndiInfo) => void;
   indiDblCallback?: (id: IndiInfo) => void;
+  indiRightCallback?: (id: IndiInfo) => void;
   famCallback?: (id: FamInfo) => void;
   data: DataProvider<IndiT, FamT>;
   horizontal?: boolean;

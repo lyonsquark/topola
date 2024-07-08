@@ -245,7 +245,6 @@ var DetailedRenderer = /** @class */ (function (_super) {
             update = update.select('a');
         }
         if (this.options.indiCallback) {
-            console.log("Setting single click callback A");
             enter.on('click', function (event, data) {
                 return _this.options.indiCallback({
                     id: data.indi.id,
@@ -254,9 +253,17 @@ var DetailedRenderer = /** @class */ (function (_super) {
             });
         }
         if (this.options.indiDblCallback) {
-            console.log("Setting double click callback A");
             enter.on('dblclick', function (event, data) {
                 return _this.options.indiDblCallback({
+                    id: data.indi.id,
+                    generation: data.generation,
+                });
+            });
+        }
+        if (this.options.indiRightCallback) {
+            enter.on('contextmenu', function (event, data) {
+                event.preventDefault();
+                _this.options.indiRightCallback({
                     id: data.indi.id,
                     generation: data.generation,
                 });
