@@ -83,7 +83,7 @@ function createChartOptions(
       indiHrefFunc,
       famHrefFunc,
       indiCallback: chartOptions.indiCallback,
-      indiDblCallback: chartOptions.indiCallback,
+      indiDblCallback: chartOptions.indiDblCallback,
       famCallback: chartOptions.famCallback,
       horizontal: chartOptions.horizontal,
       colors: chartOptions.colors,
