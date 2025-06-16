@@ -22,7 +22,10 @@ import {
 
 /** A view of a family that hides one child individual. */
 class FilterChildFam implements Fam {
-  constructor(private fam: Fam, private childId: string) {}
+  constructor(
+    private fam: Fam,
+    private childId: string,
+  ) {}
   getId(): string {
     return this.fam.getId();
   }
@@ -44,7 +47,10 @@ class FilterChildFam implements Fam {
 
 /** Data provider proxy that filters out a specific child individual. */
 class FilterChildData implements DataProvider<Indi, Fam> {
-  constructor(private data: DataProvider<Indi, Fam>, private childId: string) {}
+  constructor(
+    private data: DataProvider<Indi, Fam>,
+    private childId: string,
+  ) {}
   getIndi(id: string): Indi | null {
     return this.data.getIndi(id);
   }
@@ -76,18 +82,18 @@ export class RelativesChart<IndiT extends Indi, FamT extends Fam>
   implements Chart
 {
   readonly util: ChartUtil;
+  readonly options: ChartOptions;
 
-  constructor(readonly options: ChartOptions) {
-    this.util = new ChartUtil(options);
+  constructor(inputOptions: ChartOptions) {
+    this.options = { ...inputOptions };
     this.options.idGenerator = this.options.idGenerator || new IdGenerator();
+    this.util = new ChartUtil(this.options);
   }
 
   layOutAncestorDescendants(
     ancestorsRoot: HierarchyNode<TreeNode>,
-    focusedNode: HierarchyPointNode<TreeNode>
+    focusedNode: HierarchyPointNode<TreeNode>,
   ) {
-    // let ancestorDescentants: Array<HierarchyPointNode<TreeNode>> = [];
-
     const ancestorData = new Map<string, AncestorData>();
 
     ancestorsRoot.eachAfter((node) => {
@@ -103,7 +109,7 @@ export class RelativesChart<IndiT extends Indi, FamT extends Fam>
           : node.parent.data.indi!.id;
       descendantOptions.data = new FilterChildData(
         descendantOptions.data,
-        child
+        child,
       );
       descendantOptions.baseGeneration =
         (this.options.baseGeneration || 0) - node.depth;
@@ -112,10 +118,16 @@ export class RelativesChart<IndiT extends Indi, FamT extends Fam>
       // The id could be modified because of duplicates. This can happen when
       // drawing one family in multiple places of the chart).
       node.data.id = descendantNodes[0].id!;
-      const chartInfo = getChartInfoWithoutMargin(descendantNodes);
+      if (node.data.indi?.expander !== undefined) {
+        descendantNodes[0].data.indi!.expander = node.data.indi.expander;
+      }
+      if (node.data.spouse?.expander !== undefined) {
+        descendantNodes[0].data.spouse!.expander = node.data.spouse.expander;
+      }
 
+      const chartInfo = getChartInfoWithoutMargin(descendantNodes);
       const parentData = (node.children || []).map((childNode) =>
-        ancestorData.get(childNode.data.id)
+        ancestorData.get(childNode.data.id),
       );
       const parentHeight = parentData
         .map((data) => data!.height)
@@ -157,12 +169,12 @@ export class RelativesChart<IndiT extends Indi, FamT extends Fam>
 
       if (node.data.indiParentNodeId && node.children) {
         thisNode.data.indiParentNodeId = node.children!.find(
-          (childNode) => childNode.id === node.data.indiParentNodeId
+          (childNode) => childNode.id === node.data.indiParentNodeId,
         )!.data.id;
       }
       if (node.data.spouseParentNodeId && node.children) {
         thisNode.data.spouseParentNodeId = node.children!.find(
-          (childNode) => childNode.id === node.data.spouseParentNodeId
+          (childNode) => childNode.id === node.data.spouseParentNodeId,
         )!.data.id;
       }
     });
@@ -178,7 +190,7 @@ export class RelativesChart<IndiT extends Indi, FamT extends Fam>
       const spouseParent =
         node.children &&
         node.children.find(
-          (child) => child.id === node.data.spouseParentNodeId
+          (child) => child.id === node.data.spouseParentNodeId,
         );
       const nodeX = thisNode.x;
       const nodeY = thisNode.y;
@@ -314,9 +326,20 @@ export class RelativesChart<IndiT extends Indi, FamT extends Fam>
       idGenerator: undefined,
     });
     const ancestorsRoot = getAncestorsTree(ancestorOptions);
+
+    // The ancestor root node and first descendant node is the start node.
+    if (ancestorsRoot.data.indi?.expander !== undefined) {
+      descendantNodes[0].data.indi!.expander =
+        ancestorsRoot.data.indi?.expander;
+    }
+    if (ancestorsRoot.data.spouse?.expander !== undefined) {
+      descendantNodes[0].data.spouse!.expander =
+        ancestorsRoot.data.spouse?.expander;
+    }
+
     const ancestorDescentants = this.layOutAncestorDescendants(
       ancestorsRoot,
-      descendantNodes[0]
+      descendantNodes[0],
     );
 
     const nodes = descendantNodes.concat(ancestorDescentants);

@@ -1,18 +1,25 @@
-/// <reference path="d3-flextree.d.ts" />
+/// <reference path='d3-flextree.d.ts' />
 
 import { BaseType, select, Selection } from 'd3-selection';
-import { ChartOptions, TreeNode } from './api';
+import {
+  ChartOptions,
+  ExpanderDirection,
+  ExpanderState,
+  TreeNode,
+  TreeNodeSelection,
+} from './api';
 import { flextree } from 'd3-flextree';
 import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy';
 import { max, min } from 'd3-array';
 import 'd3-transition';
+import { getVSize } from './composite-renderer';
 
 type SVGSelection = Selection<BaseType, {}, BaseType, {}>;
 
 /** Horizontal distance between boxes. */
 export const H_SPACING = 15;
 /** Vertical distance between boxes. */
-export const V_SPACING = 30;
+export const V_SPACING = 34;
 /** Margin around the whole drawing. */
 const MARGIN = 15;
 
@@ -36,6 +43,16 @@ export interface ChartSizeInfo {
   origin: [number, number];
 }
 
+function getExpanderCss() {
+  return `
+.expander {
+  fill: white;
+  stroke: black;
+  stroke-width: 2px;
+  cursor: pointer;
+}`;
+}
+
 /** Assigns an identifier to a link. */
 export function linkId(node: HierarchyPointNode<TreeNode>) {
   if (!node.parent) {
@@ -53,7 +70,7 @@ export function linkId(node: HierarchyPointNode<TreeNode>) {
 }
 
 export function getChartInfo(
-  nodes: Array<HierarchyPointNode<TreeNode>>
+  nodes: Array<HierarchyPointNode<TreeNode>>,
 ): ChartSizeInfo {
   // Calculate chart boundaries.
   const x0 = min(nodes, (d) => d.x - d.data.width! / 2)! - MARGIN;
@@ -64,7 +81,7 @@ export function getChartInfo(
 }
 
 export function getChartInfoWithoutMargin(
-  nodes: Array<HierarchyPointNode<TreeNode>>
+  nodes: Array<HierarchyPointNode<TreeNode>>,
 ): ChartSizeInfo {
   // Calculate chart boundaries.
   const x0 = min(nodes, (d) => d.x - d.data.width! / 2)!;
@@ -81,7 +98,7 @@ export class ChartUtil {
   /** Creates a path from parent to the child node (horizontal layout). */
   private linkHorizontal(
     s: HierarchyPointNode<TreeNode>,
-    d: HierarchyPointNode<TreeNode>
+    d: HierarchyPointNode<TreeNode>,
   ) {
     const sAnchor = this.options.renderer.getFamilyAnchor(s.data);
     const dAnchor =
@@ -100,7 +117,7 @@ export class ChartUtil {
   /** Creates a path from parent to the child node (vertical layout). */
   private linkVertical(
     s: HierarchyPointNode<TreeNode>,
-    d: HierarchyPointNode<TreeNode>
+    d: HierarchyPointNode<TreeNode>,
   ) {
     const sAnchor = this.options.renderer.getFamilyAnchor(s.data);
     const dAnchor =
@@ -118,7 +135,7 @@ export class ChartUtil {
 
   private linkAdditionalMarriage(node: HierarchyPointNode<TreeNode>) {
     const nodeIndex = node.parent!.children!.findIndex(
-      (n) => n.data.id === node.data.id
+      (n) => n.data.id === node.data.id,
     );
     // Assert nodeIndex > 0.
     const siblingNode = node.parent!.children![nodeIndex - 1];
@@ -138,18 +155,20 @@ export class ChartUtil {
       : group;
     transition.attr(
       'transform',
-      `translate(${chartInfo.origin[0]}, ${chartInfo.origin[1]})`
+      `translate(${chartInfo.origin[0]}, ${chartInfo.origin[1]})`,
     );
   }
 
   layOutChart<N extends TreeNode>(
     root: HierarchyNode<N>,
-    layoutOptions: LayoutOptions = {}
+    layoutOptions: LayoutOptions = {},
   ): Array<HierarchyPointNode<N>> {
     // Add styles so that calculating text size is correct.
     const svg = select(this.options.svgSelector);
     if (svg.select('style').empty()) {
-      svg.append('style').text(this.options.renderer.getCss());
+      svg
+        .append('style')
+        .text(this.options.renderer.getCss() + getExpanderCss());
     }
 
     // Assign generation number.
@@ -223,15 +242,17 @@ export class ChartUtil {
     const svg = this.getSvgForRendering();
     const nodeAnimation = this.renderNodes(nodes, svg);
     const linkAnimation = this.renderLinks(nodes, svg);
+    const expanderAnimation = this.renderControls(nodes, svg);
     return Promise.all([
       nodeAnimation,
       linkAnimation,
+      expanderAnimation,
     ]) as unknown as Promise<void>;
   }
 
   renderNodes(
     nodes: Array<HierarchyPointNode<TreeNode>>,
-    svg: SVGSelection
+    svg: SVGSelection,
   ): Promise<void> {
     const animationPromise = new Promise<void>((resolve) => {
       const boundNodes = svg
@@ -261,7 +282,7 @@ export class ChartUtil {
         (node: HierarchyPointNode<TreeNode>) =>
           `translate(${node.x - node.data.width! / 2}, ${
             node.y - node.data.height! / 2
-          })`
+          })`,
       );
       if (this.options.animate) {
         nodeEnter
@@ -284,7 +305,7 @@ export class ChartUtil {
         (node: HierarchyPointNode<TreeNode>) =>
           `translate(${node.x - node.data.width! / 2}, ${
             node.y - node.data.height! / 2
-          })`
+          })`,
       );
       this.options.renderer.render(nodeEnter, boundNodes);
       if (this.options.animate) {
@@ -304,12 +325,12 @@ export class ChartUtil {
 
   renderLinks(
     nodes: Array<HierarchyPointNode<TreeNode>>,
-    svg: SVGSelection
+    svg: SVGSelection,
   ): Promise<void> {
     const animationPromise = new Promise<void>((resolve) => {
       const link = (
         parent: HierarchyPointNode<TreeNode>,
-        child: HierarchyPointNode<TreeNode>
+        child: HierarchyPointNode<TreeNode>,
       ) => {
         if (child.data.additionalMarriage) {
           return this.linkAdditionalMarriage(child);
@@ -328,7 +349,7 @@ export class ChartUtil {
       };
 
       const links = nodes.filter(
-        (n) => !!n.parent || n.data.additionalMarriage
+        (n) => !!n.parent || n.data.additionalMarriage,
       );
       const boundLinks = svg
         .select('g')
@@ -338,7 +359,7 @@ export class ChartUtil {
         .enter()
         .insert('path', 'g')
         .attr('class', (node) =>
-          node.data.additionalMarriage ? 'link additional-marriage' : 'link'
+          node.data.additionalMarriage ? 'link additional-marriage' : 'link',
         )
         .attr('d', (node) => link(node.parent!, node));
 
@@ -384,6 +405,200 @@ export class ChartUtil {
         boundLinks.exit().remove();
       }
     });
+    return animationPromise;
+  }
+
+  renderExpander(
+    nodes: TreeNodeSelection,
+    stateGetter: (
+      node: HierarchyPointNode<TreeNode>,
+    ) => ExpanderState | undefined,
+    clickCallback?: (id: string) => void,
+  ) {
+    nodes = nodes.filter((node) => stateGetter(node) !== undefined);
+
+    nodes.on('click', (event, data) => {
+      clickCallback?.(data.id!);
+    });
+    nodes.append('rect').attr('width', 12).attr('height', 12);
+    nodes
+      .append('line')
+      .attr('x1', 3)
+      .attr('y1', 6)
+      .attr('x2', 9)
+      .attr('y2', 6)
+      .attr('stroke', 'black');
+    nodes
+      .filter((node) => stateGetter(node) === ExpanderState.PLUS)
+      .append('line')
+      .attr('x1', 6)
+      .attr('y1', 3)
+      .attr('x2', 6)
+      .attr('y2', 9)
+      .attr('stroke', 'black');
+  }
+
+  renderFamilyControls(nodes: TreeNodeSelection) {
+    const boundNodes = nodes
+      .selectAll('g.familyExpander')
+      .data((node) => (node.data.family?.expander !== undefined ? [node] : []));
+
+    const nodeEnter: TreeNodeSelection = boundNodes
+      .enter()
+      .append('g')
+      .attr('class', 'familyExpander expander');
+
+    const merged = nodeEnter.merge(boundNodes);
+
+    const updateTransition = this.options.animate
+      ? merged.transition().delay(HIDE_TIME_MS).duration(MOVE_TIME_MS)
+      : merged;
+
+    updateTransition.attr('transform', (node: HierarchyPointNode<TreeNode>) => {
+      const anchor = this.options.renderer.getFamilyAnchor(node.data);
+      return `translate(${anchor[0] - 6}, ${
+        -node.data.height! / 2 + getVSize(node.data, !!this.options.horizontal)
+      })`;
+    });
+    this.renderExpander(
+      merged,
+      (node) => node.data.family?.expander,
+      (id) => this.options.expanderCallback?.(id, ExpanderDirection.FAMILY),
+    );
+    boundNodes.exit().remove();
+  }
+
+  renderIndiControls(nodes: TreeNodeSelection) {
+    const boundNodes = nodes
+      .selectAll('g.indiExpander')
+      .data((node) => (node.data.indi?.expander !== undefined ? [node] : []));
+
+    const nodeEnter: TreeNodeSelection = boundNodes
+      .enter()
+      .append('g')
+      .attr('class', 'indiExpander expander');
+
+    const merged = nodeEnter.merge(boundNodes);
+
+    const updateTransition = this.options.animate
+      ? merged.transition().delay(HIDE_TIME_MS).duration(MOVE_TIME_MS)
+      : merged;
+
+    updateTransition.attr('transform', (node: HierarchyPointNode<TreeNode>) => {
+      const anchor = this.options.renderer.getIndiAnchor(node.data);
+      return `translate(${anchor[0] - 6}, ${-node.data.height! / 2 - 12})`;
+    });
+    this.renderExpander(
+      merged,
+      (node) => node.data.indi?.expander,
+      (id) => this.options.expanderCallback?.(id, ExpanderDirection.INDI),
+    );
+    boundNodes.exit().remove();
+  }
+
+  renderSpouseControls(nodes: TreeNodeSelection) {
+    const boundNodes = nodes
+      .selectAll('g.spouseExpander')
+      .data((node) => (node.data.spouse?.expander !== undefined ? [node] : []));
+
+    const nodeEnter: TreeNodeSelection = boundNodes
+      .enter()
+      .append('g')
+      .attr('class', 'spouseExpander expander');
+
+    const merged = nodeEnter.merge(boundNodes);
+
+    const updateTransition = this.options.animate
+      ? merged.transition().delay(HIDE_TIME_MS).duration(MOVE_TIME_MS)
+      : merged;
+
+    updateTransition.attr('transform', (node: HierarchyPointNode<TreeNode>) => {
+      const anchor = this.options.renderer.getSpouseAnchor(node.data);
+      return `translate(${anchor[0] - 6}, ${-node.data.height! / 2 - 12})`;
+    });
+    this.renderExpander(
+      merged,
+      (node) => node.data.spouse?.expander,
+      (id) => this.options.expanderCallback?.(id, ExpanderDirection.SPOUSE),
+    );
+    boundNodes.exit().remove();
+  }
+
+  renderControls(
+    nodes: Array<HierarchyPointNode<TreeNode>>,
+    svg: SVGSelection,
+  ): Promise<void> {
+    if (!this.options.expanders) {
+      return Promise.resolve();
+    }
+    const animationPromise = new Promise<void>((resolve) => {
+      const boundNodes = svg
+        .select('g')
+        .selectAll('g.controls')
+        .data(nodes, (d: HierarchyPointNode<TreeNode>) => d.id!);
+
+      const nodeEnter = boundNodes
+        .enter()
+        .append('g' as string)
+        .attr('class', 'controls');
+      nodeEnter.attr(
+        'transform',
+        (node: HierarchyPointNode<TreeNode>) =>
+          `translate(${node.x}, ${node.y})`,
+      );
+
+      let transitionsPending =
+        boundNodes.exit().size() + boundNodes.size() + nodeEnter.size();
+      const transitionDone = () => {
+        transitionsPending--;
+        if (transitionsPending === 0) {
+          resolve();
+        }
+      };
+      if (!this.options.animate || transitionsPending === 0) {
+        resolve();
+      }
+
+      const updateTransition = this.options.animate
+        ? boundNodes
+            .transition()
+            .delay(HIDE_TIME_MS)
+            .duration(MOVE_TIME_MS)
+            .on('end', transitionDone)
+        : boundNodes;
+      updateTransition.attr(
+        'transform',
+        (node: HierarchyPointNode<TreeNode>) =>
+          `translate(${node.x}, ${node.y})`,
+      );
+      if (this.options.animate) {
+        nodeEnter
+          .style('opacity', 0)
+          .transition()
+          .delay(HIDE_TIME_MS + MOVE_TIME_MS)
+          .duration(HIDE_TIME_MS)
+          .style('opacity', 1)
+          .on('end', transitionDone);
+      }
+
+      const merged = nodeEnter.merge(boundNodes);
+      this.renderFamilyControls(merged);
+      this.renderIndiControls(merged);
+      this.renderSpouseControls(merged);
+
+      if (this.options.animate) {
+        boundNodes
+          .exit()
+          .transition()
+          .duration(HIDE_TIME_MS)
+          .style('opacity', 0)
+          .remove()
+          .on('end', transitionDone);
+      } else {
+        boundNodes.exit().remove();
+      }
+    });
+
     return animationPromise;
   }
 
