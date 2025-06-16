@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formatDateOrRange = exports.formatDate = void 0;
+exports.formatDate = formatDate;
+exports.formatDateOrRange = formatDateOrRange;
 /** Month in English is used as fallback if a requested translation is not found. */
 var MONTHS_EN = new Map([
     [1, 'Jan'],
@@ -19,11 +20,21 @@ var MONTHS_EN = new Map([
 /** Translations of the GEDCOM date qualifiers. */
 var QUALIFIERS_I18N = new Map([
     [
+        'bg',
+        new Map([
+            ['cal', 'прибл.'],
+            ['abt', 'ок.'],
+            ['est', 'оц.'],
+            ['before', 'преди'],
+            ['after', 'след'],
+        ]),
+    ],
+    [
         'cs',
         new Map([
             ['cal', 'vypočt.'],
-            ['abt', 'o'],
-            ['est', 'ocenil'],
+            ['abt', 'okolo'],
+            ['est', 'odhadem'],
             ['before', 'před'],
             ['after', 'po'],
         ]),
@@ -84,7 +95,7 @@ function getShortMonth(month, locale) {
     if (!Intl || !Intl.DateTimeFormat) {
         return MONTHS_EN.get(month);
     }
-    var cacheKey = month + "|" + (locale || '');
+    var cacheKey = "".concat(month, "|").concat(locale || '');
     if (shortMonthCache.has(cacheKey)) {
         return shortMonthCache.get(cacheKey);
     }
@@ -127,7 +138,6 @@ function formatDate(date, locale) {
         date.text,
     ].join(' ');
 }
-exports.formatDate = formatDate;
 /** Formats a DateOrRange object. */
 function formatDateOrRange(dateOrRange, locale) {
     if (dateOrRange.date) {
@@ -136,17 +146,17 @@ function formatDateOrRange(dateOrRange, locale) {
     if (!dateOrRange.dateRange) {
         return '';
     }
-    var from = dateOrRange.dateRange.from && formatDate(dateOrRange.dateRange.from);
-    var to = dateOrRange.dateRange.to && formatDate(dateOrRange.dateRange.to);
+    var from = dateOrRange.dateRange.from &&
+        formatDate(dateOrRange.dateRange.from, locale);
+    var to = dateOrRange.dateRange.to && formatDate(dateOrRange.dateRange.to, locale);
     if (from && to) {
-        return from + " .. " + to;
+        return "".concat(from, " .. ").concat(to);
     }
     if (from) {
-        return getQualifier('after', locale) + " " + from;
+        return "".concat(getQualifier('after', locale), " ").concat(from);
     }
     if (to) {
-        return getQualifier('before', locale) + " " + to;
+        return "".concat(getQualifier('before', locale), " ").concat(to);
     }
     return '';
 }
-exports.formatDateOrRange = formatDateOrRange;

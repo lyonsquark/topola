@@ -1,4 +1,3 @@
-/// <reference path="../src/parse-gedcom.d.ts" />
 import { GedcomEntry } from 'parse-gedcom';
 import { DateOrRange, JsonGedcomData } from './data';
 /** Parses a GEDCOM date or date range. */

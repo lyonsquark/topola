@@ -30,6 +30,7 @@ export interface SimpleChartOptions {
     animate?: boolean;
     updateSvgSize?: boolean;
     locale?: string;
+    expanders?: boolean;
 }
 export interface ChartHandle {
     render(data?: RenderOptions): ChartInfo;

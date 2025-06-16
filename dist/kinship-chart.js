@@ -15,7 +15,7 @@ var KinshipChart = /** @class */ (function () {
         upNodes.concat(downNodes).forEach(function (node) {
             _this.setChildNodesGenerationNumber(node);
         });
-        return this.renderer.render(upNodes, downNodes, hierarchy_creator_1.getRootsCount(hierarchy.upRoot, this.options.data));
+        return this.renderer.render(upNodes, downNodes, (0, hierarchy_creator_1.getRootsCount)(hierarchy.upRoot, this.options.data));
     };
     KinshipChart.prototype.setChildNodesGenerationNumber = function (node) {
         var childNodes = this.getChildNodesByType(node);

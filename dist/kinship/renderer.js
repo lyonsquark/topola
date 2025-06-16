@@ -1,8 +1,12 @@
 "use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.KinshipChartRenderer = void 0;
@@ -45,7 +49,7 @@ var KinshipChartRenderer = /** @class */ (function () {
         if (rootsCount > 1) {
             this.renderRootDummyAdditionalMarriageLinkStub(allNodes[0]);
         }
-        var info = chart_util_1.getChartInfo(allNodesDeduped);
+        var info = (0, chart_util_1.getChartInfo)(allNodesDeduped);
         this.util.updateSvgDimensions(info);
         return Object.assign(info, { animationPromise: animationPromise });
     };
@@ -64,11 +68,13 @@ var KinshipChartRenderer = /** @class */ (function () {
             var linkPoints = node.data.primaryMarriage
                 ? _this.additionalMarriageLinkPoints(node)
                 : _this.linkPoints(node.parent, node, node.data.linkFromParentType);
-            return utils_1.points2pathd(linkPoints);
+            return (0, utils_1.points2pathd)(linkPoints);
         });
         boundLinkNodes.exit().remove();
         // Render link stubs container "g" element
-        var boundLinkStubNodes = svgg.selectAll('g.link-stubs').data(nodes.filter(function (n) { return n.data.duplicateOf || n.data.duplicated || n.data.primaryMarriage; }), keyFn);
+        var boundLinkStubNodes = svgg.selectAll('g.link-stubs').data(nodes.filter(function (n) {
+            return n.data.duplicateOf || n.data.duplicated || n.data.primaryMarriage;
+        }), keyFn);
         var linkStubNodesEnter = boundLinkStubNodes
             .enter()
             .insert('g', 'g')
@@ -87,7 +93,7 @@ var KinshipChartRenderer = /** @class */ (function () {
                 .append('path')
                 .attr('class', function (d) { return _this.cssClassForLinkStub(d.linkType); })
                 .merge(boundLinkStubs.select('path.link-stub'))
-                .attr('d', function (d) { return utils_1.points2pathd(d.points); });
+                .attr('d', function (d) { return (0, utils_1.points2pathd)(d.points); });
         })
             .call(function (g) {
             return g
@@ -97,7 +103,7 @@ var KinshipChartRenderer = /** @class */ (function () {
                 .style('fill', 'none')
                 .merge(boundLinkStubs.select('circle'))
                 .attr('transform', function (d) {
-                return "translate(" + utils_1.last(d.points).x + ", " + (utils_1.last(d.points).y + LINK_STUB_CIRCLE_R * d.treeDir) + ")";
+                return "translate(".concat((0, utils_1.last)(d.points).x, ", ").concat((0, utils_1.last)(d.points).y + LINK_STUB_CIRCLE_R * d.treeDir, ")");
             });
         });
         boundLinkStubs.exit().remove();
@@ -135,7 +141,7 @@ var KinshipChartRenderer = /** @class */ (function () {
             return {
                 treeDir: treeDir,
                 linkType: linkType,
-                points: __spreadArray(__spreadArray([], anchorPoints), [{ x: utils_1.last(anchorPoints).x, y: y }]),
+                points: __spreadArray(__spreadArray([], anchorPoints, true), [{ x: (0, utils_1.last)(anchorPoints).x, y: y }], false),
             };
         });
     };
@@ -216,12 +222,12 @@ var KinshipChartRenderer = /** @class */ (function () {
     KinshipChartRenderer.prototype.linkPoints = function (from, to, type) {
         var isUpTree = from.y > to.y;
         var pointsFrom = this.linkAnchorPoints(from, type, isUpTree);
-        var pointsTo = this.linkAnchorPoints(to, api_1.otherSideLinkType(type), !isUpTree).reverse();
+        var pointsTo = this.linkAnchorPoints(to, (0, api_1.otherSideLinkType)(type), !isUpTree).reverse();
         var y = this.getLinkY(from, type);
-        return __spreadArray(__spreadArray(__spreadArray([], pointsFrom), [
+        return __spreadArray(__spreadArray(__spreadArray([], pointsFrom, true), [
             { x: pointsFrom[pointsFrom.length - 1].x, y: y },
             { x: pointsTo[0].x, y: y }
-        ]), pointsTo);
+        ], false), pointsTo, true);
     };
     KinshipChartRenderer.prototype.additionalMarriageLinkPoints = function (node) {
         var nodeIndex = node.parent.children.findIndex(function (n) { return n.data.id === node.data.id; });
@@ -294,13 +300,13 @@ var KinshipChartRenderer = /** @class */ (function () {
             .call(function (g) {
             return g
                 .append('path')
-                .attr('d', "M 0 " + y + " L " + x + " " + y)
+                .attr('d', "M 0 ".concat(y, " L ").concat(x, " ").concat(y))
                 .attr('class', 'link additional-marriage');
         })
             .call(function (g) {
             return g
                 .append('circle')
-                .attr('transform', "translate(" + (x + r) + ", " + y + ")")
+                .attr('transform', "translate(".concat(x + r, ", ").concat(y, ")"))
                 .attr('r', r)
                 .style('stroke', 'black')
                 .style('fill', 'black');

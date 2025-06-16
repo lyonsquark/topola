@@ -1,7 +1,9 @@
 "use strict";
 /// <reference path="parse-gedcom.d.ts" />
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.gedcomEntriesToJson = exports.gedcomToJson = exports.getDate = void 0;
+exports.getDate = getDate;
+exports.gedcomToJson = gedcomToJson;
+exports.gedcomEntriesToJson = gedcomEntriesToJson;
 var parse_gedcom_1 = require("parse-gedcom");
 /** Returns the first entry with the given tag or undefined if not found. */
 function findTag(tree, tag) {
@@ -103,7 +105,6 @@ function getDate(gedcomDate) {
     }
     return undefined;
 }
-exports.getDate = getDate;
 /**
  * tries to treat an input tag as NOTE and parsse all lines of notes
  */
@@ -143,11 +144,11 @@ function createEvent(entry) {
     return undefined;
 }
 /** Creates a JsonIndi object from an INDI entry in GEDCOM. */
-function createIndi(entry, objects) {
+function createIndi(entry, objects, existingIds) {
     var id = pointerToId(entry.pointer);
-    var fams = findTags(entry.tree, 'FAMS').map(function (entry) {
-        return pointerToId(entry.data);
-    });
+    var fams = findTags(entry.tree, 'FAMS')
+        .map(function (entry) { return pointerToId(entry.data); })
+        .filter(function (id) { return existingIds.has(id); });
     var indi = { id: id, fams: fams };
     // Name.
     var nameTags = findTags(entry.tree, 'NAME');
@@ -193,7 +194,10 @@ function createIndi(entry, objects) {
     // Family with parents.
     var famcTag = findTag(entry.tree, 'FAMC');
     if (famcTag) {
-        indi.famc = pointerToId(famcTag.data);
+        var id_1 = pointerToId(famcTag.data);
+        if (existingIds.has(id_1)) {
+            indi.famc = id_1;
+        }
     }
     // Image URL.
     var objeTags = findTags(entry.tree, 'OBJE');
@@ -235,21 +239,27 @@ function createIndi(entry, objects) {
     return indi;
 }
 /** Creates a JsonFam object from an FAM entry in GEDCOM. */
-function createFam(entry) {
+function createFam(entry, existingIds) {
     var id = pointerToId(entry.pointer);
-    var children = findTags(entry.tree, 'CHIL').map(function (entry) {
-        return pointerToId(entry.data);
-    });
+    var children = findTags(entry.tree, 'CHIL')
+        .map(function (entry) { return pointerToId(entry.data); })
+        .filter(function (id) { return existingIds.has(id); });
     var fam = { id: id, children: children };
     // Husband.
     var husbTag = findTag(entry.tree, 'HUSB');
     if (husbTag) {
-        fam.husb = pointerToId(husbTag.data);
+        var id_2 = pointerToId(husbTag.data);
+        if (existingIds.has(id_2)) {
+            fam.husb = pointerToId(husbTag.data);
+        }
     }
     // Wife.
     var wifeTag = findTag(entry.tree, 'WIFE');
     if (wifeTag) {
-        fam.wife = pointerToId(wifeTag.data);
+        var id_3 = pointerToId(wifeTag.data);
+        if (existingIds.has(id_3)) {
+            fam.wife = pointerToId(wifeTag.data);
+        }
     }
     // Marriage
     var marriage = createEvent(findTag(entry.tree, 'MARR'));
@@ -264,16 +274,17 @@ function createMap(entries) {
 }
 /** Parses a GEDCOM file into a JsonGedcomData structure. */
 function gedcomToJson(gedcomContents) {
-    return gedcomEntriesToJson(parse_gedcom_1.parse(gedcomContents));
+    return gedcomEntriesToJson((0, parse_gedcom_1.parse)(gedcomContents));
 }
-exports.gedcomToJson = gedcomToJson;
 /** Converts parsed GEDCOM entries into a JsonGedcomData structure. */
 function gedcomEntriesToJson(gedcom) {
     var objects = createMap(findTags(gedcom, 'OBJE'));
+    var existingIds = new Set(gedcom.map(function (entry) { return pointerToId(entry.pointer); }).filter(function (id) { return !!id; }));
     var indis = findTags(gedcom, 'INDI').map(function (entry) {
-        return createIndi(entry, objects);
+        return createIndi(entry, objects, existingIds);
     });
-    var fams = findTags(gedcom, 'FAM').map(createFam);
+    var fams = findTags(gedcom, 'FAM').map(function (entry) {
+        return createFam(entry, existingIds);
+    });
     return { indis: indis, fams: fams };
 }
-exports.gedcomEntriesToJson = gedcomEntriesToJson;

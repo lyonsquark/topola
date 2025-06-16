@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFamPositionHorizontal = exports.getFamPositionVertical = exports.CompositeRenderer = void 0;
+exports.CompositeRenderer = void 0;
+exports.getFamPositionVertical = getFamPositionVertical;
+exports.getFamPositionHorizontal = getFamPositionHorizontal;
+exports.getVSize = getVSize;
 var d3_array_1 = require("d3-array");
 /**
  * Common code for tree nodes that are composed of individual and family boxes.
@@ -33,7 +36,7 @@ var CompositeRenderer = /** @class */ (function () {
                 _a = _this.getPreferredFamSize(family.id), family.width = _a[0], family.height = _a[1];
             }
             var depth = node.depth;
-            var maxIndiVSize = d3_array_1.max([
+            var maxIndiVSize = (0, d3_array_1.max)([
                 getIndiVSize(node.data, !!_this.options.horizontal),
                 indiVSizePerDepth.get(depth),
             ]);
@@ -69,14 +72,14 @@ var CompositeRenderer = /** @class */ (function () {
         if (this.options.horizontal) {
             var x_1 = -node.width / 2 + getIndiVSize(node, this.options.horizontal) / 2;
             var famYOffset = node.family
-                ? d3_array_1.max([-getFamPositionHorizontal(node), 0])
+                ? (0, d3_array_1.max)([-getFamPositionHorizontal(node), 0])
                 : 0;
             var y_1 = -(node.indi && node.spouse ? node.height / 2 - node.indi.height : 0) +
                 famYOffset;
             return [x_1, y_1];
         }
         var famXOffset = node.family
-            ? d3_array_1.max([-getFamPositionVertical(node), 0])
+            ? (0, d3_array_1.max)([-getFamPositionVertical(node), 0])
             : 0;
         var x = -(node.indi && node.spouse ? node.width / 2 - node.indi.width : 0) +
             famXOffset;
@@ -124,7 +127,6 @@ function getFamPositionVertical(node) {
     }
     return indiWidth - familyWidth / 2;
 }
-exports.getFamPositionVertical = getFamPositionVertical;
 /**
  * Returns the relative position of the family box for the horizontal layout.
  */
@@ -137,7 +139,6 @@ function getFamPositionHorizontal(node) {
     }
     return indiHeight - familyHeight / 2;
 }
-exports.getFamPositionHorizontal = getFamPositionHorizontal;
 /** Returns the horizontal size. */
 function getHSize(node, horizontal) {
     if (horizontal) {
@@ -145,7 +146,7 @@ function getHSize(node, horizontal) {
             (node.spouse ? node.spouse.height : 0));
     }
     var indiHSize = (node.indi ? node.indi.width : 0) + (node.spouse ? node.spouse.width : 0);
-    return d3_array_1.max([indiHSize, node.family ? node.family.width : 0]);
+    return (0, d3_array_1.max)([indiHSize, node.family ? node.family.width : 0]);
 }
 function getFamVSize(node, horizontal) {
     if (horizontal) {
@@ -156,12 +157,12 @@ function getFamVSize(node, horizontal) {
 /** Returns the vertical size of individual boxes. */
 function getIndiVSize(node, horizontal) {
     if (horizontal) {
-        return d3_array_1.max([
+        return (0, d3_array_1.max)([
             node.indi ? node.indi.width : 0,
             node.spouse ? node.spouse.width : 0,
         ]);
     }
-    return d3_array_1.max([
+    return (0, d3_array_1.max)([
         node.indi ? node.indi.height : 0,
         node.spouse ? node.spouse.height : 0,
     ]);

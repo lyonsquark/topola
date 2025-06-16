@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.otherSideLinkType = exports.LinkType = exports.ChildNodes = void 0;
+exports.LinkType = exports.ChildNodes = void 0;
+exports.otherSideLinkType = otherSideLinkType;
 var ChildNodes = /** @class */ (function () {
     function ChildNodes(overrides) {
         if (overrides === void 0) { overrides = {}; }
@@ -39,7 +40,7 @@ var LinkType;
     LinkType[LinkType["SpouseParents"] = 2] = "SpouseParents";
     LinkType[LinkType["SpouseSiblings"] = 3] = "SpouseSiblings";
     LinkType[LinkType["Children"] = 4] = "Children";
-})(LinkType = exports.LinkType || (exports.LinkType = {}));
+})(LinkType || (exports.LinkType = LinkType = {}));
 function otherSideLinkType(type) {
     switch (type) {
         case LinkType.IndiParents:
@@ -54,4 +55,3 @@ function otherSideLinkType(type) {
             return LinkType.IndiParents;
     }
 }
-exports.otherSideLinkType = otherSideLinkType;

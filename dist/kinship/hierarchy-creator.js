@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRootsCount = exports.EntryId = exports.HierarchyCreator = void 0;
+exports.EntryId = exports.HierarchyCreator = void 0;
+exports.getRootsCount = getRootsCount;
 var api_1 = require("./api");
 var d3_hierarchy_1 = require("d3-hierarchy");
 var hierarchy_filter_1 = require("./hierarchy-filter");
@@ -57,8 +58,8 @@ var HierarchyCreator = /** @class */ (function () {
             return childNodes.length ? childNodes : null;
         };
         return {
-            upRoot: d3_hierarchy_1.hierarchy(upRoot, getChildNodes),
-            downRoot: d3_hierarchy_1.hierarchy(downRoot, getChildNodes),
+            upRoot: (0, d3_hierarchy_1.hierarchy)(upRoot, getChildNodes),
+            downRoot: (0, d3_hierarchy_1.hierarchy)(downRoot, getChildNodes),
         };
     };
     HierarchyCreator.prototype.fillNodeData = function (node, filter) {
@@ -241,7 +242,7 @@ var HierarchyCreator = /** @class */ (function () {
         var fam = this.data.getFam(node.family.id);
         var _a = this.areParentsAndSiblingsPresent(node.indi ? node.indi.id : null), indiParentsPresent = _a[0], indiSiblingsPresent = _a[1];
         var _b = this.areParentsAndSiblingsPresent(node.spouse ? node.spouse.id : null), spouseParentsPresent = _b[0], spouseSiblingsPresent = _b[1];
-        var childrenPresent = utils_1.nonEmpty(fam.getChildren());
+        var childrenPresent = (0, utils_1.nonEmpty)(fam.getChildren());
         return [
             indiParentsPresent ? [api_1.LinkType.IndiParents] : [],
             indiSiblingsPresent ? [api_1.LinkType.IndiSiblings] : [],
@@ -258,7 +259,7 @@ var HierarchyCreator = /** @class */ (function () {
     HierarchyCreator.prototype.isChildNodeTypeForbidden = function (childNodeType, parentNode) {
         if (childNodeType === null || !parentNode)
             return false;
-        switch (api_1.otherSideLinkType(parentNode.linkFromParentType)) {
+        switch ((0, api_1.otherSideLinkType)(parentNode.linkFromParentType)) {
             case api_1.LinkType.IndiParents:
             case api_1.LinkType.IndiSiblings:
                 if (childNodeType === api_1.LinkType.IndiParents ||
@@ -333,4 +334,3 @@ function getRootsCount(upRoot, data) {
     return ((upIndi ? upIndi.getFamiliesAsSpouse().length : 0) +
         (upSpouse ? upSpouse.getFamiliesAsSpouse().length - 1 : 0));
 }
-exports.getRootsCount = getRootsCount;

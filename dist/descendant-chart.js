@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DescendantChart = exports.layOutDescendants = exports.DUMMY_ROOT_NODE_ID = void 0;
+exports.DescendantChart = exports.DUMMY_ROOT_NODE_ID = void 0;
+exports.layOutDescendants = layOutDescendants;
 var d3_hierarchy_1 = require("d3-hierarchy");
+var api_1 = require("./api");
 var chart_util_1 = require("./chart-util");
 var id_generator_1 = require("./id-generator");
 exports.DUMMY_ROOT_NODE_ID = 'DUMMY_ROOT_NODE';
@@ -11,7 +13,6 @@ function layOutDescendants(options, layoutOptions) {
     var descendantsRoot = descendants.createHierarchy();
     return removeDummyNode(new chart_util_1.ChartUtil(options).layOutChart(descendantsRoot, layoutOptions));
 }
-exports.layOutDescendants = layOutDescendants;
 /** Removes the dummy root node if it was added in createHierarchy(). */
 function removeDummyNode(allNodes) {
     if (allNodes[0].id !== exports.DUMMY_ROOT_NODE_ID) {
@@ -100,6 +101,7 @@ var DescendantChart = /** @class */ (function () {
     /** Creates a d3 hierarchy from the input data. */
     DescendantChart.prototype.createHierarchy = function () {
         var _this = this;
+        var _a;
         var parents = [];
         var nodes = this.options.startIndi
             ? this.getNodes(this.options.startIndi)
@@ -129,23 +131,31 @@ var DescendantChart = /** @class */ (function () {
             var entry = stack.pop();
             var fam = this_1.options.data.getFam(entry.family.id);
             var children = fam.getChildren();
-            children.forEach(function (childId) {
-                var childNodes = _this.getNodes(childId);
-                childNodes.forEach(function (node) {
-                    node.parentId = entry.id;
-                    if (node.family) {
-                        node.id = "" + idGenerator.getId(node.family.id);
-                        stack.push(node);
-                    }
+            var collapsed = (_a = this_1.options.collapsedFamily) === null || _a === void 0 ? void 0 : _a.has(entry.id);
+            if (children.length) {
+                entry.family.expander = collapsed
+                    ? api_1.ExpanderState.PLUS
+                    : api_1.ExpanderState.MINUS;
+            }
+            if (!collapsed) {
+                children.forEach(function (childId) {
+                    var childNodes = _this.getNodes(childId);
+                    childNodes.forEach(function (node) {
+                        node.parentId = entry.id;
+                        if (node.family) {
+                            node.id = "".concat(idGenerator.getId(node.family.id));
+                            stack.push(node);
+                        }
+                    });
+                    parents.push.apply(parents, childNodes);
                 });
-                parents.push.apply(parents, childNodes);
-            });
+            }
         };
         var this_1 = this;
         while (stack.length) {
             _loop_1();
         }
-        return d3_hierarchy_1.stratify()(parents);
+        return (0, d3_hierarchy_1.stratify)()(parents);
     };
     /**
      * Renders the tree, calling the provided renderer to draw boxes for
@@ -155,7 +165,7 @@ var DescendantChart = /** @class */ (function () {
         var root = this.createHierarchy();
         var nodes = removeDummyNode(this.util.layOutChart(root));
         var animationPromise = this.util.renderChart(nodes);
-        var info = chart_util_1.getChartInfo(nodes);
+        var info = (0, chart_util_1.getChartInfo)(nodes);
         this.util.updateSvgDimensions(info);
         return Object.assign(info, { animationPromise: animationPromise });
     };

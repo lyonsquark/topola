@@ -11,7 +11,9 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AncestorChart = exports.getAncestorsTree = void 0;
+exports.AncestorChart = void 0;
+exports.getAncestorsTree = getAncestorsTree;
+var api_1 = require("./api");
 var chart_util_1 = require("./chart-util");
 var d3_hierarchy_1 = require("d3-hierarchy");
 var id_generator_1 = require("./id-generator");
@@ -42,7 +44,6 @@ function getAncestorsTree(options) {
     }
     return ancestorsRoot;
 }
-exports.getAncestorsTree = getAncestorsTree;
 /** Renders an ancestors chart. */
 var AncestorChart = /** @class */ (function () {
     function AncestorChart(options) {
@@ -51,6 +52,7 @@ var AncestorChart = /** @class */ (function () {
     }
     /** Creates a d3 hierarchy from the input data. */
     AncestorChart.prototype.createHierarchy = function () {
+        var _a, _b;
         var parents = [];
         var stack = [];
         var idGenerator = this.options.idGenerator || new id_generator_1.IdGenerator();
@@ -83,10 +85,10 @@ var AncestorChart = /** @class */ (function () {
             if (!fam) {
                 continue;
             }
-            var _a = entry.family.id === this.options.startFam &&
+            var _c = entry.family.id === this.options.startFam &&
                 this.options.swapStartSpouses
                 ? [fam.getMother(), fam.getFather()]
-                : [fam.getFather(), fam.getMother()], father = _a[0], mother = _a[1];
+                : [fam.getFather(), fam.getMother()], father = _c[0], mother = _c[1];
             if (!father && !mother) {
                 continue;
             }
@@ -95,13 +97,19 @@ var AncestorChart = /** @class */ (function () {
                 var indi = this.options.data.getIndi(mother);
                 var famc = indi.getFamilyAsChild();
                 if (famc) {
-                    var id = idGenerator.getId(famc);
-                    entry.spouseParentNodeId = id;
-                    stack.push({
-                        id: id,
-                        parentId: entry.id,
-                        family: { id: famc },
-                    });
+                    if ((_a = this.options.collapsedSpouse) === null || _a === void 0 ? void 0 : _a.has(entry.id)) {
+                        entry.spouse.expander = api_1.ExpanderState.PLUS;
+                    }
+                    else {
+                        var id = idGenerator.getId(famc);
+                        entry.spouseParentNodeId = id;
+                        entry.spouse.expander = api_1.ExpanderState.MINUS;
+                        stack.push({
+                            id: id,
+                            parentId: entry.id,
+                            family: { id: famc },
+                        });
+                    }
                 }
             }
             if (father) {
@@ -109,18 +117,24 @@ var AncestorChart = /** @class */ (function () {
                 var indi = this.options.data.getIndi(father);
                 var famc = indi.getFamilyAsChild();
                 if (famc) {
-                    var id = idGenerator.getId(famc);
-                    entry.indiParentNodeId = id;
-                    stack.push({
-                        id: id,
-                        parentId: entry.id,
-                        family: { id: famc },
-                    });
+                    if ((_b = this.options.collapsedIndi) === null || _b === void 0 ? void 0 : _b.has(entry.id)) {
+                        entry.indi.expander = api_1.ExpanderState.PLUS;
+                    }
+                    else {
+                        var id = idGenerator.getId(famc);
+                        entry.indiParentNodeId = id;
+                        entry.indi.expander = api_1.ExpanderState.MINUS;
+                        stack.push({
+                            id: id,
+                            parentId: entry.id,
+                            family: { id: famc },
+                        });
+                    }
                 }
             }
             parents.push(entry);
         }
-        return d3_hierarchy_1.stratify()(parents);
+        return (0, d3_hierarchy_1.stratify)()(parents);
     };
     /**
      * Renders the tree, calling the provided renderer to draw boxes for
@@ -130,7 +144,7 @@ var AncestorChart = /** @class */ (function () {
         var root = this.createHierarchy();
         var nodes = this.util.layOutChart(root, { flipVertically: true });
         var animationPromise = this.util.renderChart(nodes);
-        var info = chart_util_1.getChartInfo(nodes);
+        var info = (0, chart_util_1.getChartInfo)(nodes);
         this.util.updateSvgDimensions(info);
         return Object.assign(info, { animationPromise: animationPromise });
     };

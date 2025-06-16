@@ -26,3 +26,5 @@ export declare function getFamPositionVertical(node: TreeNode): number;
  * Returns the relative position of the family box for the horizontal layout.
  */
 export declare function getFamPositionHorizontal(node: TreeNode): number;
+/** Returns the vertical size. */
+export declare function getVSize(node: TreeNode, horizontal: boolean): number;

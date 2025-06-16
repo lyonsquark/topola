@@ -22,7 +22,7 @@ var MIN_HEIGHT = 27;
 var MIN_WIDTH = 50;
 /** Calculates the length of the given text in pixels when rendered. */
 function getLength(text) {
-    var g = d3_selection_1.select('svg').append('g').attr('class', 'simple node');
+    var g = (0, d3_selection_1.select)('svg').append('g').attr('class', 'simple node');
     var x = g.append('text').attr('class', 'name').text(text);
     var w = x.node().getComputedTextLength();
     g.remove();
@@ -39,7 +39,7 @@ function getYears(indi) {
     if (!birthYear && !deathYear) {
         return '';
     }
-    return (birthYear || '') + " \u2013 " + (deathYear || '');
+    return "".concat(birthYear || '', " \u2013 ").concat(deathYear || '');
 }
 /**
  * Simple rendering of an individual box showing only the person's name and
@@ -68,8 +68,8 @@ var SimpleRenderer = /** @class */ (function (_super) {
             .append('g')
             .attr('transform', function (node) {
             return _this.options.horizontal
-                ? "translate(0, " + node.data.indi.height + ")"
-                : "translate(" + node.data.indi.width + ", 0)";
+                ? "translate(0, ".concat(node.data.indi.height, ")")
+                : "translate(".concat(node.data.indi.width, ", 0)");
         });
         this.renderIndi(spouseSelection, function (node) { return node.spouse; });
     };
@@ -96,7 +96,7 @@ var SimpleRenderer = /** @class */ (function (_super) {
             .append('text')
             .attr('text-anchor', 'middle')
             .attr('class', 'name')
-            .attr('transform', function (node) { return "translate(" + indiFunc(node.data).width / 2 + ", 17)"; })
+            .attr('transform', function (node) { return "translate(".concat(indiFunc(node.data).width / 2, ", 17)"); })
             .text(function (node) {
             return getName(_this.options.data.getIndi(indiFunc(node.data).id));
         });
@@ -104,7 +104,7 @@ var SimpleRenderer = /** @class */ (function (_super) {
             .append('text')
             .attr('text-anchor', 'middle')
             .attr('class', 'details')
-            .attr('transform', function (node) { return "translate(" + indiFunc(node.data).width / 2 + ", 33)"; })
+            .attr('transform', function (node) { return "translate(".concat(indiFunc(node.data).width / 2, ", 33)"); })
             .text(function (node) {
             return getYears(_this.options.data.getIndi(indiFunc(node.data).id));
         });

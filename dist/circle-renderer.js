@@ -45,7 +45,7 @@ var CircleRenderer = /** @class */ (function () {
             .append('text')
             .attr('text-anchor', 'middle')
             .attr('transform', function (node) {
-            return "translate(" + node.data.width / 2 + ", " + (node.data.height / 2 - 4) + ")";
+            return "translate(".concat(node.data.width / 2, ", ").concat(node.data.height / 2 - 4, ")");
         })
             .text(function (node) { return _this.getName(node.data.indi); });
         enter
@@ -53,7 +53,7 @@ var CircleRenderer = /** @class */ (function () {
             .append('text')
             .attr('text-anchor', 'middle')
             .attr('transform', function (node) {
-            return "translate(" + node.data.width / 2 + ", " + (node.data.height / 2 + 14) + ")";
+            return "translate(".concat(node.data.width / 2, ", ").concat(node.data.height / 2 + 14, ")");
         })
             .text(function (node) { return _this.getName(node.data.spouse); });
         enter
@@ -61,7 +61,7 @@ var CircleRenderer = /** @class */ (function () {
             .append('text')
             .attr('text-anchor', 'middle')
             .attr('transform', function (node) {
-            return "translate(" + node.data.width / 2 + ", " + (node.data.height / 2 + 4) + ")";
+            return "translate(".concat(node.data.width / 2, ", ").concat(node.data.height / 2 + 4, ")");
         })
             .text(function (node) { return _this.getName(node.data.indi); });
     };

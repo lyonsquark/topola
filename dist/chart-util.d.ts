@@ -1,13 +1,12 @@
-/// <reference path="../src/d3-flextree.d.ts" />
 import { BaseType, Selection } from 'd3-selection';
-import { ChartOptions, TreeNode } from './api';
+import { ChartOptions, ExpanderState, TreeNode, TreeNodeSelection } from './api';
 import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy';
 import 'd3-transition';
-declare type SVGSelection = Selection<BaseType, {}, BaseType, {}>;
+type SVGSelection = Selection<BaseType, {}, BaseType, {}>;
 /** Horizontal distance between boxes. */
 export declare const H_SPACING = 15;
 /** Vertical distance between boxes. */
-export declare const V_SPACING = 30;
+export declare const V_SPACING = 34;
 /**
  * Additional layout options intended to be used internally by layout
  * implementations.
@@ -39,6 +38,11 @@ export declare class ChartUtil {
     renderChart(nodes: Array<HierarchyPointNode<TreeNode>>): Promise<void>;
     renderNodes(nodes: Array<HierarchyPointNode<TreeNode>>, svg: SVGSelection): Promise<void>;
     renderLinks(nodes: Array<HierarchyPointNode<TreeNode>>, svg: SVGSelection): Promise<void>;
+    renderExpander(nodes: TreeNodeSelection, stateGetter: (node: HierarchyPointNode<TreeNode>) => ExpanderState | undefined, clickCallback?: (id: string) => void): void;
+    renderFamilyControls(nodes: TreeNodeSelection): void;
+    renderIndiControls(nodes: TreeNodeSelection): void;
+    renderSpouseControls(nodes: TreeNodeSelection): void;
+    renderControls(nodes: Array<HierarchyPointNode<TreeNode>>, svg: SVGSelection): Promise<void>;
     getSvgForRendering(): SVGSelection;
 }
 export {};

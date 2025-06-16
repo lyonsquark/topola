@@ -8,12 +8,12 @@ var descendant_chart_1 = require("./descendant-chart");
 function branch(x1, y1, x2, y2) {
     var yMid = y2 + 110;
     if (x2 > x1 + 100) {
-        return "\n      M " + (x1 + 10) + "       " + y1 + "\n      C " + (x1 + 10) + "       " + (yMid + 25) + "\n        " + (x1 + 45) + "       " + (yMid + 10) + "\n        " + (x1 + x2) / 2 + " " + (yMid + 5) + "\n        " + (x2 - 45) + "       " + yMid + "\n        " + (x2 + 2) + "        " + (yMid - 25) + "\n        " + (x2 + 2) + "        " + y2 + "\n      L " + (x2 - 2) + "        " + y2 + "\n      C " + (x2 - 2) + "        " + (yMid - 25) + "\n        " + (x2 - 45) + "       " + (yMid - 10) + "\n        " + (x1 + x2) / 2 + " " + (yMid - 5) + "\n        " + (x1 + 45) + "       " + yMid + "\n        " + (x1 - 10) + "       " + (yMid + 25) + "\n        " + (x1 - 10) + "       " + y1;
+        return "\n      M ".concat(x1 + 10, "       ").concat(y1, "\n      C ").concat(x1 + 10, "       ").concat(yMid + 25, "\n        ").concat(x1 + 45, "       ").concat(yMid + 10, "\n        ").concat((x1 + x2) / 2, " ").concat(yMid + 5, "\n        ").concat(x2 - 45, "       ").concat(yMid, "\n        ").concat(x2 + 2, "        ").concat(yMid - 25, "\n        ").concat(x2 + 2, "        ").concat(y2, "\n      L ").concat(x2 - 2, "        ").concat(y2, "\n      C ").concat(x2 - 2, "        ").concat(yMid - 25, "\n        ").concat(x2 - 45, "       ").concat(yMid - 10, "\n        ").concat((x1 + x2) / 2, " ").concat(yMid - 5, "\n        ").concat(x1 + 45, "       ").concat(yMid, "\n        ").concat(x1 - 10, "       ").concat(yMid + 25, "\n        ").concat(x1 - 10, "       ").concat(y1);
     }
     if (x2 < x1 - 100) {
-        return "\n      M " + (x1 - 10) + "       " + y1 + "\n      C " + (x1 - 10) + "       " + (yMid + 25) + "\n        " + (x1 - 45) + "       " + (yMid + 10) + "\n        " + (x1 + x2) / 2 + " " + (yMid + 5) + "\n        " + (x2 + 45) + "       " + yMid + "\n        " + (x2 - 2) + "        " + (yMid - 25) + "\n        " + (x2 - 2) + "        " + y2 + "\n      L " + (x2 + 2) + "        " + y2 + "\n      C " + (x2 + 2) + "        " + (yMid - 25) + "\n        " + (x2 + 45) + "       " + (yMid - 10) + "\n        " + (x1 + x2) / 2 + " " + (yMid - 5) + "\n        " + (x1 - 45) + "       " + yMid + "\n        " + (x1 + 10) + "       " + (yMid + 25) + "\n        " + (x1 + 10) + "       " + y1;
+        return "\n      M ".concat(x1 - 10, "       ").concat(y1, "\n      C ").concat(x1 - 10, "       ").concat(yMid + 25, "\n        ").concat(x1 - 45, "       ").concat(yMid + 10, "\n        ").concat((x1 + x2) / 2, " ").concat(yMid + 5, "\n        ").concat(x2 + 45, "       ").concat(yMid, "\n        ").concat(x2 - 2, "        ").concat(yMid - 25, "\n        ").concat(x2 - 2, "        ").concat(y2, "\n      L ").concat(x2 + 2, "        ").concat(y2, "\n      C ").concat(x2 + 2, "        ").concat(yMid - 25, "\n        ").concat(x2 + 45, "       ").concat(yMid - 10, "\n        ").concat((x1 + x2) / 2, " ").concat(yMid - 5, "\n        ").concat(x1 - 45, "       ").concat(yMid, "\n        ").concat(x1 + 10, "       ").concat(yMid + 25, "\n        ").concat(x1 + 10, "       ").concat(y1);
     }
-    return "\n    M " + (x1 + 10) + "       " + y1 + "\n    C " + (x1 + 10) + "       " + (yMid + 25) + "\n      " + (x2 + 2) + "        " + (yMid - 25) + "\n      " + (x2 + 2) + "        " + y2 + "\n    L " + (x2 - 2) + "        " + y2 + "\n    C " + (x2 - 2) + "        " + (yMid - 25) + "\n      " + (x1 - 10) + "       " + (yMid + 25) + "\n      " + (x1 - 10) + "       " + y1;
+    return "\n    M ".concat(x1 + 10, "       ").concat(y1, "\n    C ").concat(x1 + 10, "       ").concat(yMid + 25, "\n      ").concat(x2 + 2, "        ").concat(yMid - 25, "\n      ").concat(x2 + 2, "        ").concat(y2, "\n    L ").concat(x2 - 2, "        ").concat(y2, "\n    C ").concat(x2 - 2, "        ").concat(yMid - 25, "\n      ").concat(x1 - 10, "       ").concat(yMid + 25, "\n      ").concat(x1 - 10, "       ").concat(y1);
 }
 /** Renders a fancy descendants tree chart. */
 var FancyChart = /** @class */ (function () {
@@ -39,7 +39,7 @@ var FancyChart = /** @class */ (function () {
         var dAnchor = this.options.renderer.getIndiAnchor(siblingNode.data);
         var _a = [node.x + sAnchor[0], node.y + sAnchor[1]], sx = _a[0], sy = _a[1];
         var _b = [siblingNode.x + dAnchor[0], siblingNode.y + dAnchor[1]], dx = _b[0], dy = _b[1];
-        return "M " + sx + ", " + (sy + 2) + "\n              L " + dx + ", " + (dy + 10) + "\n              " + dx + ", " + (dy - 10) + "\n              " + sx + ", " + (sy - 2);
+        return "M ".concat(sx, ", ").concat(sy + 2, "\n              L ").concat(dx, ", ").concat(dy + 10, "\n              ").concat(dx, ", ").concat(dy - 10, "\n              ").concat(sx, ", ").concat(sy - 2);
     };
     FancyChart.prototype.renderBackground = function (chartInfo, svg) {
         svg
@@ -76,7 +76,7 @@ var FancyChart = /** @class */ (function () {
             .attr('stop-color', '#8f8')
             .attr('stop-opacity', 0);
         var backgroundNodes = nodes.filter(function (n) { return n.parent && n.parent.id !== descendant_chart_1.DUMMY_ROOT_NODE_ID; });
-        var minGeneration = d3_array_1.min(backgroundNodes, function (node) { return node.data.generation; }) || 0;
+        var minGeneration = (0, d3_array_1.min)(backgroundNodes, function (node) { return node.data.generation; }) || 0;
         var sizeFunction = function (node) {
             return 280 - 180 / Math.sqrt(1 + node.data.generation - minGeneration);
         };
@@ -90,7 +90,7 @@ var FancyChart = /** @class */ (function () {
                 .merge(boundNodes)
                 .attr('class', 'background')
                 .attr('transform', function (node) {
-                return "translate(" + (node.x - node.data.width / 2) + ", " + (node.y - node.data.height / 2) + ")";
+                return "translate(".concat(node.x - node.data.width / 2, ", ").concat(node.y - node.data.height / 2, ")");
             });
             var background = enter.append('g').attr('class', 'background');
             background
@@ -111,7 +111,7 @@ var FancyChart = /** @class */ (function () {
                 .merge(boundNodes)
                 .attr('class', 'background2')
                 .attr('transform', function (node) {
-                return "translate(" + (node.x - node.data.width / 2) + ", " + (node.y - node.data.height / 2) + ")";
+                return "translate(".concat(node.x - node.data.width / 2, ", ").concat(node.y - node.data.height / 2, ")");
             });
             var background = enter.append('g').attr('class', 'background2');
             background
@@ -152,16 +152,16 @@ var FancyChart = /** @class */ (function () {
             .enter()
             .append('g')
             .attr('class', 'trunk')
-            .attr('transform', function (node) { return "translate(" + node.x + ", " + node.y + ")"; })
+            .attr('transform', function (node) { return "translate(".concat(node.x, ", ").concat(node.y, ")"); })
             .append('path')
             .attr('d', "\n          M 10 20\n          L 10 40\n          C 10 60 10 90 40 90\n          L -40 90\n          C -10 90 -10 60 -10 40\n          L -10 20");
     };
     FancyChart.prototype.render = function () {
-        var nodes = descendant_chart_1.layOutDescendants(this.options, {
+        var nodes = (0, descendant_chart_1.layOutDescendants)(this.options, {
             flipVertically: true,
             vSpacing: 100,
         });
-        var info = chart_util_1.getChartInfo(nodes);
+        var info = (0, chart_util_1.getChartInfo)(nodes);
         info.origin[0] += 150;
         info.origin[1] += 150;
         info.size[0] += 300;

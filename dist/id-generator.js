@@ -14,7 +14,7 @@ var IdGenerator = /** @class */ (function () {
         if (this.ids.has(id)) {
             var num = this.ids.get(id);
             this.ids.set(id, num + 1);
-            return id + ":" + num;
+            return "".concat(id, ":").concat(num);
         }
         this.ids.set(id, 1);
         return id;

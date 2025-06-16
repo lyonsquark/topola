@@ -5,6 +5,16 @@ export interface TreeEntry {
     id: string;
     width?: number;
     height?: number;
+    expander?: ExpanderState;
+}
+export declare enum ExpanderState {
+    PLUS = 0,
+    MINUS = 1
+}
+export declare enum ExpanderDirection {
+    INDI = 0,
+    SPOUSE = 1,
+    FAMILY = 2
 }
 /** Represents a node in the d3 graph structure. */
 export interface TreeNode {
@@ -45,7 +55,7 @@ export interface DataProvider<IndiT extends Indi, FamT extends Fam> {
     getFam(id: string): FamT | null;
 }
 /** D3 selection containing TreeNode data. */
-export declare type TreeNodeSelection = Selection<BaseType, HierarchyPointNode<TreeNode>, BaseType, {}>;
+export type TreeNodeSelection = Selection<BaseType, HierarchyPointNode<TreeNode>, BaseType, {}>;
 /** Interface for rendering data. */
 export interface Renderer {
     render(enter: TreeNodeSelection, update: TreeNodeSelection): void;
@@ -102,4 +112,9 @@ export interface ChartOptions {
     idGenerator?: {
         getId: (id: string) => string;
     };
+    expanderCallback?: (id: string, direction: ExpanderDirection) => void;
+    expanders?: boolean;
+    collapsedFamily?: Set<string>;
+    collapsedIndi?: Set<string>;
+    collapsedSpouse?: Set<string>;
 }

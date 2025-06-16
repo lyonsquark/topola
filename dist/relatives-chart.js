@@ -10,10 +10,14 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RelativesChart = void 0;
@@ -38,7 +42,7 @@ var FilterChildFam = /** @class */ (function () {
         return this.fam.getMother();
     };
     FilterChildFam.prototype.getChildren = function () {
-        var children = __spreadArray([], this.fam.getChildren());
+        var children = __spreadArray([], this.fam.getChildren(), true);
         var index = children.indexOf(this.childId);
         if (index !== -1) {
             children.splice(index, 1);
@@ -63,16 +67,16 @@ var FilterChildData = /** @class */ (function () {
 }());
 /** Chart layout showing all relatives of a person. */
 var RelativesChart = /** @class */ (function () {
-    function RelativesChart(options) {
-        this.options = options;
-        this.util = new chart_util_1.ChartUtil(options);
+    function RelativesChart(inputOptions) {
+        this.options = __assign({}, inputOptions);
         this.options.idGenerator = this.options.idGenerator || new id_generator_1.IdGenerator();
+        this.util = new chart_util_1.ChartUtil(this.options);
     }
     RelativesChart.prototype.layOutAncestorDescendants = function (ancestorsRoot, focusedNode) {
-        // let ancestorDescentants: Array<HierarchyPointNode<TreeNode>> = [];
         var _this = this;
         var ancestorData = new Map();
         ancestorsRoot.eachAfter(function (node) {
+            var _a, _b;
             if (!node.parent) {
                 return;
             }
@@ -85,11 +89,17 @@ var RelativesChart = /** @class */ (function () {
             descendantOptions.data = new FilterChildData(descendantOptions.data, child);
             descendantOptions.baseGeneration =
                 (_this.options.baseGeneration || 0) - node.depth;
-            var descendantNodes = descendant_chart_1.layOutDescendants(descendantOptions);
+            var descendantNodes = (0, descendant_chart_1.layOutDescendants)(descendantOptions);
             // The id could be modified because of duplicates. This can happen when
             // drawing one family in multiple places of the chart).
             node.data.id = descendantNodes[0].id;
-            var chartInfo = chart_util_1.getChartInfoWithoutMargin(descendantNodes);
+            if (((_a = node.data.indi) === null || _a === void 0 ? void 0 : _a.expander) !== undefined) {
+                descendantNodes[0].data.indi.expander = node.data.indi.expander;
+            }
+            if (((_b = node.data.spouse) === null || _b === void 0 ? void 0 : _b.expander) !== undefined) {
+                descendantNodes[0].data.spouse.expander = node.data.spouse.expander;
+            }
+            var chartInfo = (0, chart_util_1.getChartInfoWithoutMargin)(descendantNodes);
             var parentData = (node.children || []).map(function (childNode) {
                 return ancestorData.get(childNode.data.id);
             });
@@ -191,7 +201,7 @@ var RelativesChart = /** @class */ (function () {
                 else if (data.left) {
                     parentNode.x =
                         nodeX +
-                            d3_array_1.min([
+                            (0, d3_array_1.min)([
                                 nodeWidth / 2 -
                                     parentData.width / 2 -
                                     spouseWidth / 2 -
@@ -201,7 +211,7 @@ var RelativesChart = /** @class */ (function () {
                 }
                 else {
                     parentNode.x =
-                        nodeX + d3_array_1.max([parentData.width / 2 - nodeWidth / 2, middleX]);
+                        nodeX + (0, d3_array_1.max)([parentData.width / 2 - nodeWidth / 2, middleX]);
                 }
             }
             // Lay out the spouse's ancestors and their descendants.
@@ -244,12 +254,12 @@ var RelativesChart = /** @class */ (function () {
                 }
                 else if (data.left) {
                     parentNode.x =
-                        nodeX + d3_array_1.min([nodeWidth / 2 - parentData.width / 2, middleX]);
+                        nodeX + (0, d3_array_1.min)([nodeWidth / 2 - parentData.width / 2, middleX]);
                 }
                 else {
                     parentNode.x =
                         nodeX +
-                            d3_array_1.max([
+                            (0, d3_array_1.max)([
                                 parentData.width / 2 - nodeWidth / 2 + indiWidth / 2 + chart_util_1.H_SPACING,
                                 middleX,
                             ]);
@@ -261,16 +271,26 @@ var RelativesChart = /** @class */ (function () {
             .reduce(function (a, b) { return a.concat(b); }, []);
     };
     RelativesChart.prototype.render = function () {
-        var descendantNodes = descendant_chart_1.layOutDescendants(this.options);
+        var _a, _b, _c, _d;
+        var descendantNodes = (0, descendant_chart_1.layOutDescendants)(this.options);
         // Don't use common id generator because these nodes will not be drawn.
         var ancestorOptions = Object.assign({}, this.options, {
             idGenerator: undefined,
         });
-        var ancestorsRoot = ancestor_chart_1.getAncestorsTree(ancestorOptions);
+        var ancestorsRoot = (0, ancestor_chart_1.getAncestorsTree)(ancestorOptions);
+        // The ancestor root node and first descendant node is the start node.
+        if (((_a = ancestorsRoot.data.indi) === null || _a === void 0 ? void 0 : _a.expander) !== undefined) {
+            descendantNodes[0].data.indi.expander =
+                (_b = ancestorsRoot.data.indi) === null || _b === void 0 ? void 0 : _b.expander;
+        }
+        if (((_c = ancestorsRoot.data.spouse) === null || _c === void 0 ? void 0 : _c.expander) !== undefined) {
+            descendantNodes[0].data.spouse.expander =
+                (_d = ancestorsRoot.data.spouse) === null || _d === void 0 ? void 0 : _d.expander;
+        }
         var ancestorDescentants = this.layOutAncestorDescendants(ancestorsRoot, descendantNodes[0]);
         var nodes = descendantNodes.concat(ancestorDescentants);
         var animationPromise = this.util.renderChart(nodes);
-        var info = chart_util_1.getChartInfo(nodes);
+        var info = (0, chart_util_1.getChartInfo)(nodes);
         this.util.updateSvgDimensions(info);
         return Object.assign(info, { animationPromise: animationPromise });
     };
