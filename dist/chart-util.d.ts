@@ -2,7 +2,7 @@ import { BaseType, Selection } from 'd3-selection';
 import { ChartOptions, ExpanderState, TreeNode, TreeNodeSelection } from './api';
 import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy';
 import 'd3-transition';
-type SVGSelection = Selection<BaseType, {}, BaseType, {}>;
+export type SVGSelection = Selection<BaseType, {}, BaseType, {}>;
 /** Horizontal distance between boxes. */
 export declare const H_SPACING = 15;
 /** Vertical distance between boxes. */
@@ -45,4 +45,3 @@ export declare class ChartUtil {
     renderControls(nodes: Array<HierarchyPointNode<TreeNode>>, svg: SVGSelection): Promise<void>;
     getSvgForRendering(): SVGSelection;
 }
-export {};

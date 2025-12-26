@@ -102,7 +102,7 @@ export interface Chart {
 export interface ChartOptions {
     data: DataProvider<Indi, Fam>;
     renderer: Renderer;
-    svgSelector: string;
+    svgSelector?: string | SVGElement;
     startIndi?: string;
     startFam?: string;
     swapStartSpouses?: boolean;

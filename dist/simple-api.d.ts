@@ -23,6 +23,7 @@ export interface SimpleChartOptions {
     indiRightCallback?: (id: IndiInfo) => void;
     famCallback?: (id: FamInfo) => void;
     svgSelector?: string;
+    svgElement?: SVGElement;
     chartType: ChartType;
     renderer: RendererType;
     horizontal?: boolean;

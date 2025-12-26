@@ -36,7 +36,7 @@ function createChartOptions(chartOptions, renderOptions, options) {
         renderer: renderer,
         startIndi: renderOptions.startIndi,
         startFam: renderOptions.startFam,
-        svgSelector: chartOptions.svgSelector || DEFAULT_SVG_SELECTOR,
+        svgSelector: chartOptions.svgElement || chartOptions.svgSelector || DEFAULT_SVG_SELECTOR,
         horizontal: chartOptions.horizontal,
         baseGeneration: renderOptions.baseGeneration,
         animate: animate,
@@ -66,8 +66,15 @@ var SimpleChartHandle = /** @class */ (function () {
         this.initialRender = false;
         var chart = new this.options.chartType(this.chartOptions);
         var info = chart.render();
-        if (this.options.updateSvgSize !== false) {
-            (0, d3_selection_1.select)(this.chartOptions.svgSelector)
+        if (this.options.updateSvgSize !== false && this.chartOptions.svgSelector) {
+            var svgSelection = void 0;
+            if (typeof this.chartOptions.svgSelector === 'string') {
+                svgSelection = (0, d3_selection_1.select)(this.chartOptions.svgSelector);
+            }
+            else { // It must be an SVGElement
+                svgSelection = (0, d3_selection_1.select)(this.chartOptions.svgSelector);
+            }
+            svgSelection
                 .attr('width', info.size[0])
                 .attr('height', info.size[1]);
         }

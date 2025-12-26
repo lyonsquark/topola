@@ -1,5 +1,6 @@
 import { ChartColors } from '.';
-import { select } from 'd3-selection';
+import { BaseType, select } from 'd3-selection';
+import { SVGSelection } from './chart-util';
 import {
   Chart,
   ChartInfo,
@@ -49,6 +50,8 @@ export interface SimpleChartOptions {
   // CSS selector of the SVG tag to draw in. If not provided, the chart will be
   // rendered in the first SVG tag.
   svgSelector?: string;
+  // SVG element to draw in. If provided, `svgSelector` will be ignored.
+  svgElement?: SVGElement;
   chartType: ChartType;
   renderer: RendererType;
   horizontal?: boolean;
@@ -99,7 +102,7 @@ function createChartOptions(
     renderer,
     startIndi: renderOptions.startIndi,
     startFam: renderOptions.startFam,
-    svgSelector: chartOptions.svgSelector || DEFAULT_SVG_SELECTOR,
+    svgSelector: chartOptions.svgElement || chartOptions.svgSelector || DEFAULT_SVG_SELECTOR,
     horizontal: chartOptions.horizontal,
     baseGeneration: renderOptions.baseGeneration,
     animate,
@@ -136,8 +139,14 @@ class SimpleChartHandle implements ChartHandle {
 
     const chart = new this.options.chartType(this.chartOptions);
     const info = chart.render();
-    if (this.options.updateSvgSize !== false) {
-      select(this.chartOptions.svgSelector)
+    if (this.options.updateSvgSize !== false && this.chartOptions.svgSelector) {
+      let svgSelection: SVGSelection;
+      if (typeof this.chartOptions.svgSelector === 'string') {
+        svgSelection = select(this.chartOptions.svgSelector) as SVGSelection;
+      } else { // It must be an SVGElement
+        svgSelection = (select(this.chartOptions.svgSelector as BaseType) as unknown) as SVGSelection;
+      }
+      svgSelection
         .attr('width', info.size[0])
         .attr('height', info.size[1]);
     }

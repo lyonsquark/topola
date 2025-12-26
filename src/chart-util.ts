@@ -14,7 +14,7 @@ import { max, min } from 'd3-array';
 import 'd3-transition';
 import { getVSize } from './composite-renderer';
 
-type SVGSelection = Selection<BaseType, {}, BaseType, {}>;
+export type SVGSelection = Selection<BaseType, {}, BaseType, {}>;
 
 /** Horizontal distance between boxes. */
 export const H_SPACING = 15;
@@ -148,7 +148,7 @@ export class ChartUtil {
   }
 
   updateSvgDimensions(chartInfo: ChartSizeInfo) {
-    const svg = select(this.options.svgSelector);
+    const svg = this.getSvgForRendering();
     const group = svg.select('g');
     const transition = this.options.animate
       ? group.transition().delay(HIDE_TIME_MS).duration(MOVE_TIME_MS)
@@ -164,7 +164,7 @@ export class ChartUtil {
     layoutOptions: LayoutOptions = {},
   ): Array<HierarchyPointNode<N>> {
     // Add styles so that calculating text size is correct.
-    const svg = select(this.options.svgSelector);
+    const svg = this.getSvgForRendering();
     if (svg.select('style').empty()) {
       svg
         .append('style')
@@ -603,7 +603,16 @@ export class ChartUtil {
   }
 
   getSvgForRendering(): SVGSelection {
-    const svg = select(this.options.svgSelector) as SVGSelection;
+    let svg: SVGSelection;
+    if (typeof this.options.svgSelector === 'string') {
+      svg = select(this.options.svgSelector) as SVGSelection;
+    } else if (this.options.svgSelector instanceof SVGElement) {
+      svg = (select(this.options.svgSelector) as unknown) as SVGSelection;
+    } else {
+      // This case should ideally not be reached if createChartOptions always provides a default
+      // if svgSelector is undefined. However, as a safeguard, we'll fall back to 'svg'.
+      svg = select('svg') as SVGSelection;
+    }
     if (svg.select('g').empty()) {
       svg.append('g');
     }

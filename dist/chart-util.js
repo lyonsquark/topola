@@ -89,7 +89,7 @@ var ChartUtil = /** @class */ (function () {
         return "M ".concat(sx, ", ").concat(sy, "\n            L ").concat(dx, ", ").concat(dy);
     };
     ChartUtil.prototype.updateSvgDimensions = function (chartInfo) {
-        var svg = (0, d3_selection_1.select)(this.options.svgSelector);
+        var svg = this.getSvgForRendering();
         var group = svg.select('g');
         var transition = this.options.animate
             ? group.transition().delay(HIDE_TIME_MS).duration(MOVE_TIME_MS)
@@ -100,7 +100,7 @@ var ChartUtil = /** @class */ (function () {
         var _this = this;
         if (layoutOptions === void 0) { layoutOptions = {}; }
         // Add styles so that calculating text size is correct.
-        var svg = (0, d3_selection_1.select)(this.options.svgSelector);
+        var svg = this.getSvgForRendering();
         if (svg.select('style').empty()) {
             svg
                 .append('style')
@@ -456,7 +456,18 @@ var ChartUtil = /** @class */ (function () {
         return animationPromise;
     };
     ChartUtil.prototype.getSvgForRendering = function () {
-        var svg = (0, d3_selection_1.select)(this.options.svgSelector);
+        var svg;
+        if (typeof this.options.svgSelector === 'string') {
+            svg = (0, d3_selection_1.select)(this.options.svgSelector);
+        }
+        else if (this.options.svgSelector instanceof SVGElement) {
+            svg = (0, d3_selection_1.select)(this.options.svgSelector);
+        }
+        else {
+            // This case should ideally not be reached if createChartOptions always provides a default
+            // if svgSelector is undefined. However, as a safeguard, we'll fall back to 'svg'.
+            svg = (0, d3_selection_1.select)('svg');
+        }
         if (svg.select('g').empty()) {
             svg.append('g');
         }
